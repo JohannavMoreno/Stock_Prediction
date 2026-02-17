@@ -3,3 +3,5 @@ numpy
 pandas
 matplotlib
 joblib
+boto3
+sagemaker
