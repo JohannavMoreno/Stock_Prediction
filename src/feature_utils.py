@@ -60,8 +60,8 @@ def extract_features_pair():
     Y = stk_data.loc[:, ('Adj Close', 'AME')]
     Y.name = 'AME'
 
-    X = stk_data.loc[:, ('Adj Close', 'MPWR')]
-    X.name = 'MPWR'
+    X = stk_data.loc[:, ('Adj Close', 'AAPL')]
+    X.name = 'AAPL'
 
     dataset = pd.concat([Y, X], axis=1).dropna()
     Y = dataset.loc[:, Y.name]
@@ -87,4 +87,5 @@ def get_bitcoin_historical_prices(days = 60):
     df['Date'] = pd.to_datetime(df['Timestamp'], unit='ms').dt.normalize()
     df = df[['Date', 'Close Price (USD)']].set_index('Date')
     return df
+
 
