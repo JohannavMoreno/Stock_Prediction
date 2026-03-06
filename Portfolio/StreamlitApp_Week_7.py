@@ -30,7 +30,7 @@ project_root = os.path.abspath(os.path.join(current_dir, '..'))
 if project_root not in sys.path:
     sys.path.append(project_root)
 
-from src.feature_utils import extract_features_pair
+import ta
 
 # Access the secrets
 aws_id = st.secrets["aws_credentials"]["AWS_ACCESS_KEY_ID"]
@@ -53,14 +53,23 @@ session = get_session(aws_id, aws_secret, aws_token)
 sm_session = sagemaker.Session(boto_session=session)
 
 # Data & Model Configuration
-df_features = extract_features_pair()
+def get_bitcoin_features(close_price):
+    df = pd.DataFrame({'Close': [close_price] * 50})  # need enough rows for indicators
+    df['RSI'] = ta.momentum.RSIIndicator(close=df['Close'], window=14).rsi()
+    macd = ta.trend.MACD(close=df['Close'])
+    df['MACD'] = macd.macd()
+    bb = ta.volatility.BollingerBands(close=df['Close'], window=20)
+    df['BB_Width'] = bb.bollinger_wband()
+    df['ROC'] = ta.momentum.ROCIndicator(close=df['Close'], window=10).roc()
+    df.dropna(inplace=True)
+    return df[['RSI', 'MACD', 'BB_Width', 'ROC']]
 
 MODEL_INFO = {
-        "endpoint": aws_endpoint,
-        "explainer": 'explainer_pair.shap',
-        "pipeline": 'finalized_pair_model.tar.gz',
-        "keys": ["AME", "AAPL"],
-        "inputs": [{"name": k, "type": "number", "min": 0.0, "default": 0.0, "step": 10.0} for k in ["AME", "AAPL"]]
+    "endpoint": aws_endpoint,
+    "explainer": 'explainer_bitcoin.shap',
+    "pipeline": 'finalized_bitcoin_model.tar.gz',
+    "keys": ["Close"],
+    "inputs": [{"name": "Close", "type": "number", "min": 0.0, "default": 30000.0, "step": 100.0}]
 }
 
 def load_pipeline(_session, bucket, key):
@@ -117,7 +126,7 @@ def display_explanation(input_df, session, aws_bucket):
     best_pipeline = load_pipeline(session, aws_bucket, 'sklearn-pipeline-deployment')
     preprocessing_pipeline = Pipeline(steps=best_pipeline.steps[:-2])
     input_df_transformed = preprocessing_pipeline.transform(input_df)
-    feature_names = best_pipeline[1:4].get_feature_names_out()
+    feature_names = best_pipeline[:-2].get_feature_names_out()
     input_df_transformed = pd.DataFrame(input_df_transformed, columns=feature_names)
     shap_values = explainer(input_df_transformed)
     #shap_values = explainer(input_df_transformed)
@@ -131,7 +140,7 @@ def display_explanation(input_df, session, aws_bucket):
 
 # Streamlit UI
 st.set_page_config(page_title="ML Deployment", layout="wide")
-st.title("👨‍💻 ML Deployment")
+st.title("₿ Bitcoin Signal Predictor")
 
 with st.form("pred_form"):
     st.subheader(f"Inputs")
@@ -148,11 +157,8 @@ with st.form("pred_form"):
     submitted = st.form_submit_button("Run Prediction")
 
 if submitted:
-
-    data_row = [user_inputs[k] for k in MODEL_INFO["keys"]]
-    # Prepare data
-    base_df = df_features
-    input_df = pd.concat([base_df, pd.DataFrame([data_row], columns=base_df.columns)])
+    close_price = user_inputs["Close"]
+    input_df = get_bitcoin_features(close_price)
     
     res, status = call_model_api(input_df)
     if status == 200:
@@ -160,6 +166,7 @@ if submitted:
         display_explanation(input_df,session, aws_bucket)
     else:
         st.error(res)
+
 
 
 
