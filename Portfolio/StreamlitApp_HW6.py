@@ -64,7 +64,7 @@ MODEL_INFO = {
         "explainer": 'explainer_sentiment.shap',
         "pipeline": 'finalized_sentiment_model.tar.gz',
         "keys": ['ADBE','MSFT','JPM','sentiment_textblob'],
-        "inputs": [{"name": k, "type": "number", "min": -1.0, "max": 1.0, "default": 0.0, "step": 0.01} for k in ['ADBE','MSFT','JPM','sentiment_textblob']]
+        "inputs": [{"name": k, "type": "number", "min": -1.0, "max": 1.0, "default": 0.0, "step": 0.01} for k in ['ADBE','AMZN','WMT','PredictedSentiment']]
 }
 
 def load_pipeline(_session, bucket, key):
@@ -77,7 +77,7 @@ def load_pipeline(_session, bucket, key):
         Key= f"{key}/{os.path.basename(filename)}")
         # Extract the .joblib file from the .tar.gz
     with tarfile.open(filename, "r:gz") as tar:
-        tar.extractall(path=".")
+        tar.etractall(path=".")
         joblib_file = [f for f in tar.getnames() if f.endswith('.joblib')][0]
 
     # Load the full pipeline
