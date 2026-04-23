@@ -69,6 +69,7 @@ MODEL_INFO = {
     {"name": "MSFT",               "min": -0.1, "max": 0.1, "default": 0.0, "step": 0.001},
     {"name": "JPM",                "min": -0.1, "max": 0.1, "default": 0.0, "step": 0.001},
     {"name": "sentiment_lex", "min": -1.0, "max": 1.0, "default": 0.0, "step": 0.01},
+       ]
            }
 def load_pipeline(_session, bucket, key):
     s3_client = _session.client('s3')
