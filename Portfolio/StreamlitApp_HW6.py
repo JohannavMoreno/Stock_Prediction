@@ -63,10 +63,13 @@ MODEL_INFO = {
         "endpoint": aws_endpoint,
         "explainer": 'explainer_sentiment.shap',
         "pipeline": 'finalized_sentiment_model.tar.gz',
-        "keys": ['ADBE', 'MSFT', 'JPM', 'sentiment_textblob'],
-       "inputs": [{"name": k, "type": "number", "min": -10.0, "max": 10.0, "default": 0.0, "step": 0.01} for k in ['ADBE', 'MSFT', 'JPM', 'sentiment_textblob']]
-}
-
+        "keys": ['ADBE', 'MSFT', 'JPM', 'sentiment_lexicon'],
+       "inputs": [
+    {"name": "ADBE",               "min": -0.1, "max": 0.1, "default": 0.0, "step": 0.001},
+    {"name": "MSFT",               "min": -0.1, "max": 0.1, "default": 0.0, "step": 0.001},
+    {"name": "JPM",                "min": -0.1, "max": 0.1, "default": 0.0, "step": 0.001},
+    {"name": "sentiment_textblob", "min": -1.0, "max": 1.0, "default": 0.0, "step": 0.01},
+]
 def load_pipeline(_session, bucket, key):
     s3_client = _session.client('s3')
     filename=MODEL_INFO["pipeline"]
@@ -113,7 +116,7 @@ def call_model_api(input_df):
         # For classification
         raw_pred = predictor.predict(input_df)
         pred_val = pd.DataFrame(raw_pred).values[-1][0]
-        mapping = {-1: "SELL", 0: "HOLD", 1: "BUY"}
+        mapping = {0: "SELL", 1: "HOLD", 2: "BUY"}
         return mapping.get(pred_val), 200
     except Exception as e:
         return f"Error: {str(e)}", 500
