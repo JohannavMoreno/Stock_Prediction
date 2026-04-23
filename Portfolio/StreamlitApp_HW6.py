@@ -63,12 +63,12 @@ MODEL_INFO = {
         "endpoint": aws_endpoint,
         "explainer": 'explainer_sentiment.shap',
         "pipeline": 'finalized_sentiment_model.tar.gz',
-        "keys": ['ADBE', 'MSFT', 'JPM', 'sentiment_lexicon'],
+        "keys": ['ADBE', 'MSFT', 'JPM', 'sentiment_lex'],
        "inputs": [
     {"name": "ADBE",               "min": -0.1, "max": 0.1, "default": 0.0, "step": 0.001},
     {"name": "MSFT",               "min": -0.1, "max": 0.1, "default": 0.0, "step": 0.001},
     {"name": "JPM",                "min": -0.1, "max": 0.1, "default": 0.0, "step": 0.001},
-    {"name": "sentiment_textblob", "min": -1.0, "max": 1.0, "default": 0.0, "step": 0.01},
+    {"name": "sentiment_lex", "min": -1.0, "max": 1.0, "default": 0.0, "step": 0.01},
 ]
 def load_pipeline(_session, bucket, key):
     s3_client = _session.client('s3')
