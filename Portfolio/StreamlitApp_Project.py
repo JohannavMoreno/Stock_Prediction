@@ -65,11 +65,11 @@ MODEL_INFO = {
     "pipeline"  : "finalized_loan_default_model.tar.gz",
     "keys"      : ['int_rate', 'term', 'fico_avg', 'emp_length', 'dti'],
     "inputs": [
-        {"name": "int_rate",    "label": "Interest Rate (%)",       "min": 5.0,   "max": 31.0,   "default": 13.5,    "step": 0.1},
-        {"name": "term",        "label": "Loan Term (months)",      "min": 36.0,  "max": 60.0,   "default": 36.0,    "step": 24.0},
-        {"name": "fico_avg",    "label": "Average FICO Score",      "min": 600.0, "max": 850.0,  "default": 700.0,   "step": 5.0},
-        {"name": "emp_length",  "label": "Employment Length (yrs)", "min": 0.0,   "max": 10.0,   "default": 5.0,     "step": 1.0},
-        {"name": "dti",         "label": "Debt-to-Income Ratio",    "min": 0.0,   "max": 50.0,   "default": 18.0,    "step": 0.5},
+        {"name": "int_rate",   "label": "Interest Rate (%)",       "type": "number",   "min": 5.0,   "max": 29.0,  "default": 13.5,  "step": 0.1},
+        {"name": "term",       "label": "Loan Term (months)",      "type": "select",   "options": [36, 60],          "default": 36},
+        {"name": "fico_avg",   "label": "Average FICO Score",      "type": "number",   "min": 660.0, "max": 850.0, "default": 700.0, "step": 5.0},
+        {"name": "emp_length", "label": "Employment Length (yrs)", "type": "number",   "min": 0.0,   "max": 10.0,  "default": 5.0,   "step": 1.0},
+        {"name": "dti",        "label": "Debt-to-Income Ratio",    "type": "number",   "min": 0.0,   "max": 38.0,  "default": 18.0,  "step": 0.5},
     ]
 }
 
