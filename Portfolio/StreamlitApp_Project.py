@@ -168,11 +168,20 @@ with st.form("pred_form"):
 
     for i, inp in enumerate(MODEL_INFO["inputs"]):
         with cols[i % 2]:
-            user_inputs[inp['name']] = st.number_input(
-                inp.get('label', inp['name'].replace('_', ' ').upper()),
-                min_value=inp['min'], max_value=inp['max'],
-                value=inp['default'], step=inp['step']
-            )
+            if inp.get("type") == "select":
+                user_inputs[inp['name']] = st.selectbox(
+                    inp['label'],
+                    options=inp['options'],
+                    index=inp['options'].index(inp['default']),
+                )
+            else:
+                user_inputs[inp['name']] = st.number_input(
+                    inp['label'],
+                    min_value=inp['min'],
+                    max_value=inp['max'],
+                    value=inp['default'],
+                    step=inp['step'],
+                )
 
     submitted = st.form_submit_button("Run Prediction")
 
