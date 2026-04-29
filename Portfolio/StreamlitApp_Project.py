@@ -127,34 +127,38 @@ def display_explanation(input_df, session, aws_bucket):
         posixpath.join('explainer', explainer_name),
         os.path.join(tempfile.gettempdir(), explainer_name)
     )
-
     best_pipeline = load_pipeline(session, aws_bucket, 'sklearn-pipeline-deployment')
-
+    
     # Apply only the preprocessing step (skip SMOTE + classifier)
     preprocessing_pipeline = Pipeline(steps=best_pipeline.steps[:-2])
-    input_df = pd.DataFrame(input_df)
+    
+    # Handle flat dict (single applicant) by wrapping in a list first
+    if isinstance(input_df, dict):
+        input_df = pd.DataFrame([input_df])
+    else:
+        input_df = pd.DataFrame(input_df)
+    
     input_df_transformed = preprocessing_pipeline.transform(input_df)
-
+    
     # Recover transformed feature names
     try:
         feature_names = preprocessing_pipeline.get_feature_names_out()
         feature_names = [n.split('__', 1)[-1] for n in feature_names]
     except Exception:
         feature_names = dataset.columns.tolist()
-
+    
     input_df_transformed = pd.DataFrame(input_df_transformed, columns=feature_names)
     shap_values = explainer(input_df_transformed)
-
+    
     st.subheader("🔍 Decision Transparency (SHAP)")
     fig, ax = plt.subplots(figsize=(10, 4))
     shap.plots.waterfall(shap_values[0])  # binary classifier — single output
     st.pyplot(fig)
-
+    
     top_feature = pd.Series(
         shap_values[0].values, index=shap_values[0].feature_names
     ).abs().idxmax()
     st.info(f"**Business Insight:** The most influential factor in this decision was **{top_feature}**.")
-
 
 # ── Streamlit UI ──────────────────────────────────────────────────────────
 st.set_page_config(page_title="Loan Default Predictor", layout="wide")
