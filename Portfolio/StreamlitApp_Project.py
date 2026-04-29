@@ -187,13 +187,13 @@ with st.form("pred_form"):
 
 # Build the full input row by starting from a sample of training data
 # and overlaying the user's inputs for the top features.
-original = dataset.iloc[0:1].to_dict()
-original.update({k: [v] for k, v in user_inputs.items()})
+sample_row = dataset.iloc[0].to_dict()       # flat dict of scalars
+sample_row.update(user_inputs)               # override with user values
 
 if submitted:
-    res, status = call_model_api(original)
+    res, status = call_model_api(sample_row)
     if status == 200:
         st.metric("Prediction Result", res)
-        display_explanation(original, session, aws_bucket)
+        display_explanation(sample_row, session, aws_bucket)
     else:
         st.error(res)
