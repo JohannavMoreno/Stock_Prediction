@@ -118,6 +118,38 @@ def call_model_api(input_df):
     except Exception as e:
         return f"Error: {str(e)}", 500
 
+def display_explanation(input_df, session, aws_bucket):
+    explainer_name = MODEL_INFO["explainer"]
+    explainer = load_shap_explainer(...)
+    best_pipeline = load_pipeline(session, aws_bucket, 'sklearn-pipeline-deployment')
+    preprocessing_pipeline = Pipeline(steps=best_pipeline.steps[:-2])
+
+    # === DEBUG ===
+    if isinstance(input_df, dict):
+        input_df = pd.DataFrame([input_df])
+    else:
+        input_df = pd.DataFrame(input_df)
+    
+    st.write("**DEBUG: Input columns sent to pipeline:**")
+    st.write(sorted(input_df.columns.tolist()))
+    
+    # What columns does the pipeline expect?
+    try:
+        expected = []
+        for name, transformer, cols in preprocessing_pipeline.named_steps['preprocess'].transformers_:
+            if cols != 'drop':
+                expected.extend(cols if isinstance(cols, list) else list(cols))
+        st.write("**DEBUG: Columns the pipeline expects:**")
+        st.write(sorted(expected))
+        st.write("**DEBUG: Missing from input:**")
+        st.write(sorted(set(expected) - set(input_df.columns)))
+        st.write("**DEBUG: Extra in input:**")
+        st.write(sorted(set(input_df.columns) - set(expected)))
+    except Exception as e:
+        st.write(f"Couldn't introspect pipeline: {e}")
+
+    input_df_transformed = preprocessing_pipeline.transform(input_df)
+    # ... rest of function
 
 # ── Local Explainability ──────────────────────────────────────────────────
 def display_explanation(input_df, session, aws_bucket):
