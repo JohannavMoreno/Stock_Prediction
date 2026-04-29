@@ -61,8 +61,8 @@ sm_session = sagemaker.Session(boto_session=session)
 # int_rate, term, fico_avg, emp_length, dti
 MODEL_INFO = {
     "endpoint"  : aws_endpoint,
-    "explainer" : "shap_explainer.pkl",
-    "pipeline"  : "finalized_loan_default_model.tar.gz",
+    "explainer" : "shap_explainer_v2.pkl",                  # ← updated
+    "pipeline"  : "finalized_loan_model_v2.tar.gz",
     "keys"      : ['int_rate', 'term', 'fico_avg', 'emp_length', 'dti'],
     "inputs": [
         {"name": "int_rate",   "label": "Interest Rate (%)",       "type": "number",   "min": 5.0,   "max": 29.0,  "default": 13.5,  "step": 0.1},
